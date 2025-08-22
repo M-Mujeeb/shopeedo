@@ -10,6 +10,7 @@ class Order extends Model
     use PreventDemoModeChanges;
     protected $fillable = [
         'type',
+        'cancel_reason'
     ];
 
     public function orderDetails()

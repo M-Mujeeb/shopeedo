@@ -479,20 +479,52 @@ class DeliveryBoyController extends Controller
         ]);
     }
 
-    public function cancel_request($id)
+    public function cancel_request(Request $request, $id)
     {
-        $order =  Order::find($id);
-
-        $order->cancel_request = 1;
-        $order->cancel_request_at = date('Y-m-d H:i:s');
-        $order->save();
-
-        return response()->json([
-            'result' => true,
-            'message' => translate('Requested for cancellation')
+        $request->validate([
+            'cancel_reason' => 'nullable|string|max:500',
         ]);
+    
+        $order = Order::with('orderDetails')->find($id);
+    
+        if (!$order) {
+            return response()->json([
+                'result'  => false,
+                'message' => 'Order not found',
+            ], 404);
+        }
+    
+        // Idempotent: already cancelled
+        if ($order->delivery_status === 'cancelled') {
+            return response()->json([
+                'result'  => false,
+                'message' => 'Order already cancelled',
+            ], 200);
+        }
+    
+        \DB::transaction(function () use ($order, $request) {
+            $now = Carbon::now('UTC');
+    
+            $order->delivery_status    = 'cancelled';
+            $order->cancel_request_at  = $now;
+            if ($request->filled('cancel_request')) {
+                $order->cancel_reason = $request->cancel_request;
+            }
+            $order->updated_at = $now;
+            $order->cancel_by = 'delivery_boy';
+            $order->save();
+    
+            $order->orderDetails()->update([
+                'delivery_status' => 'cancelled',
+                'updated_at'      => $now,
+            ]);
+        });
+    
+        return response()->json([
+            'result'  => true,
+            'message' => translate('Order cancelled successfully'),
+        ], 200);
     }
-
     public function details($id)
     {
         $order_detail = Order::with('combinedOrder')
