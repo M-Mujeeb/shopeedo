@@ -38,6 +38,7 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin', 'prevent-bac
         Route::post('/bonus-to-delivery-boy', 'bonus_to_delivery_boy')->name('bonus-to-delivery-boy');
         Route::get('/delivery-boys-payment-histories', 'delivery_boys_payment_histories')->name('delivery-boys-payment-histories');
         Route::get('/delivery-boys-bonus-histories', 'delivery_boys_bonus_histories')->name('delivery-boys-bonus-histories');
+        Route::get('/delivery-boys-timesheet', 'delivery_boys_timesheet')->name('delivery-boys-timesheet');
         Route::get('/delivery-boys-payment-modal/{user_id}', 'showPaymentModal')->name('delivery-boys-payment-modal');
         Route::post('/process-payment', 'processPayment')->name('process-payment');
         Route::get('/delivery-boys-collection-histories', 'delivery_boys_collection_histories')->name('delivery-boys-collection-histories');

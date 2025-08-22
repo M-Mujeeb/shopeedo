@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 // use App\Exports\DeliveryBoyExport;
+use App\Models\DeliveryBoyShiftHistory;
 use App\Services\MailjetAuthMailer;
 use Auth;
 use Hash;
@@ -599,6 +600,110 @@ public function processPayment(Request $request)
         $delivery_boy_collections = $delivery_boy_collection_query;
 
         return view('backend.delivery_boys.delivery_boys_bonus_list', compact('delivery_boy_collections'));
+    }
+    public function delivery_boys_timesheet(Request $request)
+    {
+        $tz = 'Asia/Karachi';
+    
+        // Filters (defaults: current month → today, local time)
+        $fromLocal = $request->filled('from')
+            ? Carbon::parse($request->input('from').' 00:00:00', $tz)
+            : Carbon::now($tz)->startOfMonth();
+    
+        $toLocal = $request->filled('to')
+            ? Carbon::parse($request->input('to').' 23:59:59', $tz)
+            : Carbon::now($tz)->endOfDay();
+    
+        // Convert to UTC for DB query
+        $fromUtc = $fromLocal->copy()->utc();
+        $toUtc   = $toLocal->copy()->utc();
+    
+        // Base list of delivery boys (searchable)
+        $sort_search = $request->input('search');
+        $delivery_boys_q = DeliveryBoy::with('user')->orderByDesc('created_at');
+    
+        if ($sort_search) {
+            $user_ids = User::where('user_type', 'delivery_boy')
+                ->where(function ($q) use ($sort_search) {
+                    $q->where('name', 'like', "%{$sort_search}%")
+                      ->orWhere('email', 'like', "%{$sort_search}%");
+                })
+                ->pluck('id')
+                ->toArray();
+    
+            $delivery_boys_q->whereIn('user_id', $user_ids);
+        }
+    
+        // Paginate boys; compute timesheets only for the current page
+        $delivery_boys = $delivery_boys_q->paginate(15);
+    
+        $pageUserIds = $delivery_boys->pluck('user_id')->all();
+    
+        // Fetch closed sessions overlapping the range (for users on current page)
+        $sessions = DeliveryBoyShiftHistory::whereIn('user_id', $pageUserIds)
+            ->whereNotNull('end_at')
+            ->whereTime('end_at', '!=', '00:00:00')
+            ->where(function ($q) use ($fromUtc, $toUtc) {
+                $q->whereBetween('start_at', [$fromUtc, $toUtc])
+                  ->orWhereBetween('end_at',   [$fromUtc, $toUtc])
+                  ->orWhere(function ($q2) use ($fromUtc, $toUtc) {
+                      $q2->where('start_at', '<=', $fromUtc)
+                         ->where('end_at',   '>=', $toUtc);
+                  });
+            })
+            ->orderByDesc('start_at')
+            ->get(['user_id','start_at','end_at']);
+    
+        // Build per-user timesheets (group by local date)
+        $timesheets = [];          // [user_id][Y-m-d] => ['intervals' => [...], 'day_seconds' => int]
+        $userTotals = [];          // [user_id] => total_seconds
+    
+        foreach ($sessions as $s) {
+            // Force parse as UTC from raw DB string
+            $startUtc = Carbon::createFromFormat('Y-m-d H:i:s', $s->getRawOriginal('start_at'), 'UTC');
+            $endUtc   = Carbon::createFromFormat('Y-m-d H:i:s', $s->getRawOriginal('end_at'),   'UTC');
+    
+            $durSecs = $endUtc->diffInSeconds($startUtc);
+    
+            $startLocal = $startUtc->copy()->setTimezone($tz);
+            $endLocal   = $endUtc->copy()->setTimezone($tz);
+            $dateKey    = $startLocal->format('Y-m-d');
+    
+            if (!isset($timesheets[$s->user_id][$dateKey])) {
+                $timesheets[$s->user_id][$dateKey] = [
+                    'intervals'   => [],
+                    'day_seconds' => 0,
+                ];
+            }
+    
+            $timesheets[$s->user_id][$dateKey]['intervals'][] = [
+                'start_time' => $startLocal->format('H:i:s'),
+                'end_time'   => $endLocal->format('H:i:s'),
+                'seconds'    => $durSecs,
+            ];
+            $timesheets[$s->user_id][$dateKey]['day_seconds'] += $durSecs;
+    
+            $userTotals[$s->user_id] = ($userTotals[$s->user_id] ?? 0) + $durSecs;
+        }
+    
+        foreach ($timesheets as $uid => &$days) {
+            // Sort intervals within day (latest → oldest)
+            foreach ($days as &$day) {
+                usort($day['intervals'], function ($a, $b) {
+                    return strcmp($b['start_time'], $a['start_time']);
+                });
+            }
+            unset($day);
+    
+            // Sort dates desc
+            uksort($days, function ($a, $b) { return strcmp($b, $a); });
+        }
+        unset($days);
+    
+        return view(
+            'backend.delivery_boys.delivery_boys_timesheet',
+            compact('delivery_boys', 'timesheets', 'userTotals', 'fromLocal', 'toLocal', 'sort_search', 'tz')
+        );
     }
 
     public function delivery_boys_cancel_request_list()

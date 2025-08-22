@@ -477,7 +477,15 @@
                                         <span class="aiz-side-nav-text">{{translate('Bonus Histories')}}</span>
                                     </a>
                                 </li>
-                            @endcan
+                                @endcan
+
+                                @can('collected_histories_from_delivery_boy')
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{route('delivery-boys-timesheet')}}" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">{{translate('Delivery Boy Timesheet')}}</span>
+                                    </a>
+                                </li>
+                                @endcan
 
 
                                 @can('order_cancle_request_by_delivery_boy')
