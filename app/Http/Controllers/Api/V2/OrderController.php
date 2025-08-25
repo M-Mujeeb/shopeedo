@@ -368,7 +368,7 @@ class OrderController extends Controller
     //         ]);
     // }
 
-public function store(Request $request, $set_paid = false)
+public function  store(Request $request, $set_paid = false)
 {
     if (get_setting('minimum_order_amount_check') == 1) {
         $subtotal = 0;
@@ -579,7 +579,7 @@ public function store(Request $request, $set_paid = false)
     if (
         $request->payment_type == 'cash_on_delivery'
         || $request->payment_type == 'wallet'
-        || strpos($request->payment_type, "manual_payment_") !== false // if payment type like  manual_payment_1 or  manual_payment_25 etc
+        || strpos($request->payment_type, "manual_payment_") !== false
     ) {
         NotificationUtility::sendOrderPlacedNotification($order);
     }

@@ -367,15 +367,12 @@ class ShopController extends Controller
     {
 
         $request->validate([
-            'status' => 'required|boolean', // Ensure the status is a boolean (1 or 0, true or false)
+            'status' => 'required|boolean',
         ]);
 
-        // Get the authenticated user
         $user = auth()->user();
 
-        // Check if the user has a shop
         if (!$user->shop) {
-        // return 1;
 
             return response()->json([
                 'status'  => 'error',
