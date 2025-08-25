@@ -78,6 +78,10 @@ class ProfileController extends Controller
             $user->back_side_picture = $request->back_side_picture;
         }
 
+        if (isset($request->phone)) {
+            $user->phone = $request->phone;
+        }
+
 
         $user->save();
 

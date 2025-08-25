@@ -543,7 +543,7 @@ class DeliveryBoyController extends Controller
 
   public function delivery_boy_status(Request $request)
 {
-    $request->validate(['status' => 'required|boolean']); // 1=online, 0=offline
+    $request->validate(['status' => 'required|boolean']);
 
     $user = $request->user();
     $deliveryBoy = $user->deliveryBoy;

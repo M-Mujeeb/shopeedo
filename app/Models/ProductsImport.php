@@ -57,6 +57,8 @@ class ProductsImport implements ToCollection, WithHeadingRow, WithValidation, To
                     'tags' => $row['tags'],
                     'unit_price' => $row['unit_price'],
                     'unit' => $row['unit'],
+                    'refundable' => 1,
+                    'cash_on_delivery' =>1,
                     'meta_title' => $row['meta_title'],
                     'meta_description' => $row['meta_description'],
                     'est_shipping_days' => $row['est_shipping_days'],
