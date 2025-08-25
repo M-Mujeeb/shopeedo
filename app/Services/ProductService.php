@@ -174,6 +174,9 @@ class ProductService
             }
         }
 
+        $collection['refundable'] = 1;
+        $collection['cash_on_delivery'] = 1;
+
         $data = $collection->merge(compact(
             'user_id',
             'approved',
