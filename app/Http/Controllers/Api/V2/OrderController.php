@@ -581,7 +581,7 @@ public function  store(Request $request, $set_paid = false)
         || $request->payment_type == 'wallet'
         || strpos($request->payment_type, "manual_payment_") !== false
     ) {
-        NotificationUtility::sendOrderPlacedNotification($order);
+        // NotificationUtility::sendOrderPlacedNotification($order);
     }
     
     $combine_order = CombinedOrder::findOrFail($combined_order->id);
