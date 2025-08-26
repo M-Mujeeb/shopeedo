@@ -35,10 +35,11 @@ class PasswordResetController extends Controller
             $user->forget_password_time = now();
             $user->save();
             if ($request->send_code_by == 'phone') {
+
                 $otpController = new OTPVerificationController();
                 $otpController->send_code($user);
             } else {
-               try {
+                  try {
         $mailjet = new MailjetAuthMailer();
 
         $templateId = match ($user->user_type) {
@@ -80,15 +81,15 @@ class PasswordResetController extends Controller
         $response = $mailjet->send($array);
 
         if (!$response->success()) {
-            \Log::error('Mailjet failed (resend): ' . $response->getReasonPhrase());
+            \Log::error('Mailjet failed (forgot password): ' . $response->getReasonPhrase());
             return response()->json([
                 'result' => false,
-                'message' => translate('Failed to resend verification email.')
+                'message' => translate('Failed to forgot verification email.')
             ]);
         }
 
     } catch (\Exception $e) {
-        \Log::error('Mailjet resendCode exception: ' . $e->getMessage());
+        \Log::error('Mailjet forgot exception: ' . $e->getMessage());
         return response()->json([
             'result' => false,
             'message' => translate('Failed to resend verification email.')

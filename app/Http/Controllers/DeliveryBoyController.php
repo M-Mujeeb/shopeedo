@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 // use App\Exports\DeliveryBoyExport;
-use App\Models\DeliveryBoyShiftHistory;
 use App\Services\MailjetAuthMailer;
+use App\Models\DeliveryBoyShiftHistory;
 use Auth;
 use Hash;
 use Artisan;
@@ -590,17 +590,6 @@ public function processPayment(Request $request)
         return view('backend.delivery_boys.delivery_boys_collection_list', compact('delivery_boy_collections'));
     }
 
-    public function delivery_boys_bonus_histories(){
-        $delivery_boy_collection_query = DeliveryBoyBonusHistory::query();
-        if (Auth::user()->user_type == 'delivery_boy') {
-            $delivery_boy_collection_query = $delivery_boy_collection_query->where('user_id', Auth::user()->id);
-        }
-        $delivery_boy_collection_query = $delivery_boy_collection_query->paginate(10);
-
-        $delivery_boy_collections = $delivery_boy_collection_query;
-
-        return view('backend.delivery_boys.delivery_boys_bonus_list', compact('delivery_boy_collections'));
-    }
     public function delivery_boys_timesheet(Request $request)
     {
         $tz = 'Asia/Karachi';
@@ -704,6 +693,18 @@ public function processPayment(Request $request)
             'backend.delivery_boys.delivery_boys_timesheet',
             compact('delivery_boys', 'timesheets', 'userTotals', 'fromLocal', 'toLocal', 'sort_search', 'tz')
         );
+    }
+
+    public function delivery_boys_bonus_histories(){
+        $delivery_boy_collection_query = DeliveryBoyBonusHistory::query();
+        if (Auth::user()->user_type == 'delivery_boy') {
+            $delivery_boy_collection_query = $delivery_boy_collection_query->where('user_id', Auth::user()->id);
+        }
+        $delivery_boy_collection_query = $delivery_boy_collection_query->paginate(10);
+
+        $delivery_boy_collections = $delivery_boy_collection_query;
+
+        return view('backend.delivery_boys.delivery_boys_bonus_list', compact('delivery_boy_collections'));
     }
 
     public function delivery_boys_cancel_request_list()

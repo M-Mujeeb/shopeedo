@@ -66,14 +66,17 @@ class DeliveryBoyPurchaseHistoryMiniCollection extends ResourceCollection
                     }
                 ])->first();
 
+
                 $isQuick=0;
                 if ($order) {
-                    $isQuickValues = $order->orderDetails->map(function ($detail) {
-                        return optional($detail->product->category)->is_quick;
-                    })->filter()
-                    ->unique();
+                   $isQuickValues = $order->orderDetails
+    ->map(function ($detail) {
+        return optional(optional($detail->product)->category)->is_quick;
+    })
+    ->filter()
+    ->unique();
 
-                    $isQuick = $isQuickValues->first();
+$isQuick = (bool) ($isQuickValues->first() ?? 0);
                 }
 
                 $shop='';

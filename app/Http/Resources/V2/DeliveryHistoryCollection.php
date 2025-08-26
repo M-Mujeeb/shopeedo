@@ -13,6 +13,7 @@ class DeliveryHistoryCollection extends ResourceCollection
         return [
             'data' => $this->collection->map(function ($data) {
 
+                // return $data;
                 return [
                     'id' => $data->id,
                     'delivery_boy_id' => $data->delivery_boy_id,

@@ -89,7 +89,13 @@
                                         </div>
                                 </td>
                             </tr>
-                             
+                            <td class="text-footer" style="padding-top: 20px; color:#1f2125; font-family:'Fira Mono', Arial,sans-serif; font-size:12px; line-height:22px; text-align:left;">
+                                You have received this email because you or someone else has confirmed the email address. This would like to receive email communication from Shopeedo. We will never share your personal information (such as your email address with any other 3rd party without your consent).
+
+This email was sent by: F1, First floor, Ghani plaza, 196-A, Main Multan Road, Lahore, Pakistan.
+                                </td>
+                           
+
                         </table>
                     </td>
                 </tr>

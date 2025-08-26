@@ -61,6 +61,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(AffiliateWithdrawRequest::class);
     }
 
+     public function shiftHistories()
+{
+    return $this->hasMany(\App\Models\DeliveryBoyShiftHistory::class, 'user_id');
+}
+
     public function products()
     {
         return $this->hasMany(Product::class);
@@ -174,11 +179,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function deliveryBoy() {
      return $this->hasOne(DeliveryBoy::class, 'user_id','id');
     }
-
-    public function shiftHistories()
-{
-    return $this->hasMany(\App\Models\DeliveryBoyShiftHistory::class, 'user_id');
-}
 
     public function calculateWeeklyBonus(): float
     {

@@ -19,7 +19,7 @@ class Order extends Model
     }
     public function combinedOrder()
     {
-        return $this->belongsTo(CombinedOrder::class, 'combined_order_id');  
+        return $this->belongsTo(CombinedOrder::class, 'combined_order_id');  // Assuming 'combined_order_id' is the foreign key
     }
 
     public function refund_requests()

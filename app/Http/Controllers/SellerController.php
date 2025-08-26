@@ -235,10 +235,11 @@ class SellerController extends Controller
     public function show_verification_request($id)
     {
         $shop = Shop::findOrFail($id);
+        // dd($shop);
         return view('backend.sellers.verification', compact('shop'));
     }
 
-    public function approve_seller($id)
+   public function approve_seller($id)
     {
         $shop = Shop::findOrFail($id);
         $shop->verification_status = 1;

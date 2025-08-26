@@ -368,7 +368,7 @@ class OrderController extends Controller
     //         ]);
     // }
 
-public function  store(Request $request, $set_paid = false)
+public function store(Request $request, $set_paid = false)
 {
     if (get_setting('minimum_order_amount_check') == 1) {
         $subtotal = 0;
@@ -504,10 +504,12 @@ public function  store(Request $request, $set_paid = false)
             $order_detail->shipping_type = $cartItem['shipping_type'];
             $order_detail->product_referral_code = $cartItem['product_referral_code'];
             
-            $order_detail->shipping_cost = 0; 
+            // Don't use individual cart item shipping cost - use only the total shipping from request
+            $order_detail->shipping_cost = 0; // Individual items don't have shipping cost
 
             $shipping += $order_detail->shipping_cost;
 
+            //End of storing shipping cost
             if (addon_is_activated('club_point')) {
                 $order_detail->earn_point = $product->earn_point;
             }
@@ -571,7 +573,7 @@ public function  store(Request $request, $set_paid = false)
     }
     
     $combined_order->shipping_cost = $request->shipping_cost;
-    $combined_order->grand_total += $request->shipping_cost;
+    $combined_order->grand_total += $request->shipping_cost; // Add shipping to combined total
     $combined_order->save();
 
     Cart::where('user_id', auth()->user()->id)->active()->delete();
@@ -579,7 +581,7 @@ public function  store(Request $request, $set_paid = false)
     if (
         $request->payment_type == 'cash_on_delivery'
         || $request->payment_type == 'wallet'
-        || strpos($request->payment_type, "manual_payment_") !== false
+        || strpos($request->payment_type, "manual_payment_") !== false // if payment type like  manual_payment_1 or  manual_payment_25 etc
     ) {
         // NotificationUtility::sendOrderPlacedNotification($order);
     }
@@ -587,8 +589,8 @@ public function  store(Request $request, $set_paid = false)
     $combine_order = CombinedOrder::findOrFail($combined_order->id);
     $first_order = $combine_order->orders->first();
 
-
-    $shipping_cost = $request->shipping_cost; 
+    // Calculate totals - use only the total shipping from request
+    $shipping_cost = $request->shipping_cost; // Use exactly what was sent in payload
     $price = 0;
     $tax = 0;
     $coupon_discount = 0;
@@ -645,11 +647,11 @@ public function  store(Request $request, $set_paid = false)
         'order_details' => $order_details,
         'order_totals' => [
             'subtotal' => single_price($price),
-            'shipping' => single_price($combine_order->shipping_cost), 
+            'shipping' => single_price($combine_order->shipping_cost), // Use combined order shipping
             'tax' => single_price($tax),
             'coupon_discount' => single_price($coupon_discount),
             'platform_fees' => single_price($total_platform_fees),
-            'total' => single_price($combine_order->grand_total)
+            'total' => single_price($combine_order->grand_total) // Use combined order grand_total
         ]
     ]);
 }

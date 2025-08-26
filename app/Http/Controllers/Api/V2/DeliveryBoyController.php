@@ -480,51 +480,52 @@ class DeliveryBoyController extends Controller
     }
 
     public function cancel_request(Request $request, $id)
-    {
-        $request->validate([
-            'cancel_reason' => 'nullable|string|max:500',
-        ]);
-    
-        $order = Order::with('orderDetails')->find($id);
-    
-        if (!$order) {
-            return response()->json([
-                'result'  => false,
-                'message' => 'Order not found',
-            ], 404);
-        }
-    
-        // Idempotent: already cancelled
-        if ($order->delivery_status === 'cancelled') {
-            return response()->json([
-                'result'  => false,
-                'message' => 'Order already cancelled',
-            ], 200);
-        }
-    
-        \DB::transaction(function () use ($order, $request) {
-            $now = Carbon::now('UTC');
-    
-            $order->delivery_status    = 'cancelled';
-            $order->cancel_request_at  = $now;
-            if ($request->filled('cancel_request')) {
-                $order->cancel_reason = $request->cancel_request;
-            }
-            $order->updated_at = $now;
-            $order->cancel_by = 'delivery_boy';
-            $order->save();
-    
-            $order->orderDetails()->update([
-                'delivery_status' => 'cancelled',
-                'updated_at'      => $now,
-            ]);
-        });
-    
+{
+    $request->validate([
+        'cancel_reason' => 'nullable|string|max:500',
+    ]);
+
+    $order = Order::with('orderDetails')->find($id);
+
+    if (!$order) {
         return response()->json([
-            'result'  => true,
-            'message' => translate('Order cancelled successfully'),
+            'result'  => false,
+            'message' => 'Order not found',
+        ], 404);
+    }
+
+    // Idempotent: already cancelled
+    if ($order->delivery_status === 'cancelled') {
+        return response()->json([
+            'result'  => false,
+            'message' => 'Order already cancelled',
         ], 200);
     }
+
+    \DB::transaction(function () use ($order, $request) {
+        $now = Carbon::now('UTC');
+
+        $order->delivery_status    = 'cancelled';
+        $order->cancel_request_at  = $now;
+        if ($request->filled('cancel_request')) {
+            $order->cancel_reason = $request->cancel_request;
+        }
+        $order->updated_at = $now;
+        $order->cancel_by = 'delivery_boy';
+        $order->save();
+
+        $order->orderDetails()->update([
+            'delivery_status' => 'cancelled',
+            'updated_at'      => $now,
+        ]);
+    });
+
+    return response()->json([
+        'result'  => true,
+        'message' => translate('Order cancelled successfully'),
+    ], 200);
+}
+
     public function details($id)
     {
         $order_detail = Order::with('combinedOrder')
@@ -543,7 +544,7 @@ class DeliveryBoyController extends Controller
 
   public function delivery_boy_status(Request $request)
 {
-    $request->validate(['status' => 'required|boolean']);
+    $request->validate(['status' => 'required|boolean']); // 1=online, 0=offline
 
     $user = $request->user();
     $deliveryBoy = $user->deliveryBoy;

@@ -204,6 +204,7 @@ class AuthController extends Controller
             'delivery_boy' => env('MAILJET_TEMPLATE_DELIVERY_BOY'),
             default => null
         };
+
         $name = $user->name ?? ucfirst($request->user_type);
         $otp = $user->verification_code;
 
@@ -289,8 +290,6 @@ class AuthController extends Controller
             'delivery_boy' => env('MAILJET_TEMPLATE_DELIVERY_BOY'),
             default => null
         };
-
-        
 
         $name = $user->name ?? ucfirst($user->user_type);
         $otp = $user->verification_code;

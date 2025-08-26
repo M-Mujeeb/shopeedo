@@ -757,7 +757,6 @@ class CheckoutController extends Controller
         Session::forget('club_point');
         Session::forget('combined_order_id');
 
-
         foreach ($combined_order->orders as $order) {
             if ($order->notified == 0) {
                 // NotificationUtility::sendOrderPlacedNotification($order);
@@ -771,8 +770,6 @@ class CheckoutController extends Controller
                 $order->save();
             }
         }
-
-        // dd($combined_order);
 
         return view('frontend.order_confirmed', compact('combined_order', 'platform_fees'));
     }

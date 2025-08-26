@@ -418,7 +418,7 @@ class BusinessSettingsController extends Controller
                         // Manually create a validator for the file
                         $validator = Validator::make(
                             ['image' => $file],
-                            ['image' => 'dimensions:width=1440,height=375'],
+                            ['image' => 'dimensions:max_width=1440,max_height=375'],
                             ['image.dimensions' => 'The image must be exactly 1440x375 pixels.']
                         );
 

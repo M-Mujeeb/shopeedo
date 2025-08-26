@@ -16,6 +16,8 @@ class Authenticate extends Middleware
         if ($user && ($user->banned ?? false)) {
             return response()->json(['result' => false, 'message' => translate('User is banned'), 'user' => null], 401);
         }
+
+
         return $next($request);
     }
     /**

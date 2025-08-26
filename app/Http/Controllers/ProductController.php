@@ -597,7 +597,7 @@ class ProductController extends Controller
         return 1;
     }
 
-    public function updateProductApproval(Request $request)
+   public function updateProductApproval(Request $request)
     {
         $product = Product::findOrFail($request->id);
         $product->approved = $request->approved;

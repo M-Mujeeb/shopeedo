@@ -4,9 +4,26 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Middleware\EnsureSystemKey;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use App\Utility\NotificationUtility;
 
+Route::get('/test-push', function (Request $request) {
+    $notification = new \stdClass();
+    $notification->device_token = 'eiun79zc7U7coMuBfPxpgo:APA91bGl3OyeZNj5r93RPp9rBQfrEnTc9phJyJkgGFfhYjT8O9yPlUHtwtwlr59YsPYPQyVeds9QiTTuHCZwi6sY_Bs4BxZ3JDSmRpXsBvplhi2Iwv2X4pc';
+    $notification->title = 'Test Notification';
+    $notification->text = 'This is a test push notification.';
+    $notification->type = 'test';
+    $notification->id = 12345;
+    $notification->user_id = 1; // optional user id
+    $notification->for = 'seller'; 
 
+    $result = NotificationUtility::sendFirebaseNotification($notification);
 
+    return response()->json([
+        'success' => $result,
+        'message' => $result ? 'Notification sent successfully!' : 'Failed to send notification.'
+    ]);
+});
 
 Route::group(['prefix' => 'v2/auth', 'middleware' => ['app_language']], function () {
 
@@ -87,7 +104,6 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
             Route::get('deliveries/on_the_way/{id}', 'on_the_way_delivery')->middleware('auth:sanctum');
             Route::get('deliveries/history/{id}', 'deliveryHistories')->middleware('auth:sanctum');
 
-
             //Delivery Boy Order
             Route::get('purchase-history-details/{id}',[DeliveryBoyController::class, 'details'])->middleware('auth:sanctum');
 
@@ -102,10 +118,8 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function () {
             Route::get('bonuses', [DeliveryBoyController::class, 'deliveryBoyBonuses'])->name('deliveryboy.deliveryBoyBonuses')->middleware('auth:sanctum');
             Route::get('welcome-bonus/{id}',[DeliveryBoyController::class, 'welcomebonus'])->name('delivery.welcomeBonus');
             Route::get('payment-bonuses-history',[DeliveryBoyController::class, 'paymentBonusesHistory'])->name('delivery.paymentBonusesHistory')->middleware('auth:sanctum');
-
-            Route::get('timesheet', [DeliveryBoyController::class, 'timesheet'])->name('delivery.timesheet')->middleware('auth:sanctum');
-            Route::get('collection-history', [DeliveryBoyController::class, 'collectionHistory'])->name('delivery.collectionHistory')->middleware('auth:sanctum');
-
+             Route::get('timesheet', [DeliveryBoyController::class, 'timesheet'])->name('delivery.timesheet')->middleware('auth:sanctum');
+             Route::get('collection-history', [DeliveryBoyController::class, 'collectionHistory'])->name('delivery.collectionHistory')->middleware('auth:sanctum');
         });
     });
 

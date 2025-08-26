@@ -367,12 +367,15 @@ class ShopController extends Controller
     {
 
         $request->validate([
-            'status' => 'required|boolean',
+            'status' => 'required|boolean', // Ensure the status is a boolean (1 or 0, true or false)
         ]);
 
+        // Get the authenticated user
         $user = auth()->user();
 
+        // Check if the user has a shop
         if (!$user->shop) {
+        // return 1;
 
             return response()->json([
                 'status'  => 'error',
@@ -391,7 +394,6 @@ class ShopController extends Controller
 
         ], 200);
     }
-
     public function get_shop_status(Request $request){
 
          $user = auth()->user();
@@ -401,19 +403,19 @@ class ShopController extends Controller
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Shop not found for the authenticated user',
-            ], 404);
+            ], 400);
         }
 
         if($user->shop->shop_status == 1){
              return response()->json([
                 'status'  => 'true',
                 'message' => 'Shop is Online',
-            ], 404);
+            ], 200);
         }else{
               return response()->json([
                 'status'  => 'false',
                 'message' => 'Shop is Offline',
-            ], 404);
+            ], 200);
         }
 
     }
