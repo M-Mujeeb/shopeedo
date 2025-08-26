@@ -28,7 +28,7 @@ class RefundRequestController extends Controller
         $refund->order_id = $order_detail->order_id;
         $refund->order_detail_id = $order_detail->id;
         $refund->seller_id = $order_detail->seller_id;
-        $refund->seller_approval = 0;
+        $refund->seller_approval = 1;
         $refund->reason = $request->reason;
         $refund->admin_approval = 0;
         $refund->admin_seen = 0;

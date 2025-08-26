@@ -758,10 +758,9 @@ class CheckoutController extends Controller
         Session::forget('combined_order_id');
 
 
-        dd($combined_order->orders);
         foreach ($combined_order->orders as $order) {
             if ($order->notified == 0) {
-                NotificationUtility::sendOrderPlacedNotification($order);
+                // NotificationUtility::sendOrderPlacedNotification($order);
                 $order->notified = 1;
                 if($order->type == 'Taiz'){
                     $order->delivery_status = 'confirmed';
