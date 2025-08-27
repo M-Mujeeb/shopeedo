@@ -404,6 +404,12 @@ class DeliveryBoyController extends Controller
         $order->delivery_status = $request->status;
         $order->save();
 
+        $order->orderDetails()->update([
+            'delivery_status' => $request->status,
+            // 'delivery_viewed' => '0', 
+            'updated_at'      => now(), 
+        ]);
+
         $delivery_history = new DeliveryHistory;
 
         $delivery_history->order_id         = $order->id;

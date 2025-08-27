@@ -44,79 +44,79 @@ class NotificationUtility
             // if ($order->user->email != null) {
             //     Mail::to($order->user->email)->queue(new InvoiceEmailManager($array));
             // }        
-            try {
-                if ($order->user->email != null) {
-                    Mail::to($order->user->email)->queue(new InvoiceEmailManager($array));
-                }
-                Mail::to($order->orderDetails->first()->product->user->email)->queue(new InvoiceEmailManager($array));
+        //     try {
+        //         if ($order->user->email != null) {
+        //             Mail::to($order->user->email)->queue(new InvoiceEmailManager($array));
+        //         }
+        //         Mail::to($order->orderDetails->first()->product->user->email)->queue(new InvoiceEmailManager($array));
          
 
-            } catch (\Exception $e) {
+        //     } catch (\Exception $e) {
 
-        }
+        // }
 
 
         //send email to seller as well
 
-        $seller = User::find($order->seller_id);
+        // $seller = User::find($order->seller_id);
 
-        if ($seller) {
-            $order_details = OrderDetail::where('order_id',$order->id)->first();
-            $product = Product::where('id',$order_details->product_id)->first();
-            $shippingAddress = json_decode($order->shipping_address);
+        // if ($seller) {
+        //     $order_details = OrderDetail::where('order_id',$order->id)->first();
+        //     $product = Product::where('id',$order_details->product_id)->first();
+        //     $shippingAddress = json_decode($order->shipping_address);
 
-            $array['view'] = 'emails.verification';
-            $array['from'] = env('MAIL_FROM_ADDRESS');
-            $array['subject'] = translate('Important Notice: Product Return Instructions ');
+        //     $array['view'] = 'emails.verification';
+        //     $array['from'] = env('MAIL_FROM_ADDRESS');
+        //     $array['subject'] = translate('Important Notice: Product Return Instructions ');
 
-            $array['content'] = '
-            Dear,<br><br>
+        //     $array['content'] = '
+        //     Dear,<br><br>
 
-            We hope this message finds you well. We are writing to provide important information regarding the delivery process for your recent sales on Shopeedo.<br><br>
+        //     We hope this message finds you well. We are writing to provide important information regarding the delivery process for your recent sales on Shopeedo.<br><br>
 
-            <strong>Order Details:</strong><br>
-            ● Order Number: ' . $order->code . '<br>
-            ● Product Name: ' . $product->name . '<br>
-            ● Quantity: ' . $order_details->quantity . '<br>
-            ● Shipping Address: ' . $shippingAddress->address . '<br><br>
+        //     <strong>Order Details:</strong><br>
+        //     ● Order Number: ' . $order->code . '<br>
+        //     ● Product Name: ' . $product->name . '<br>
+        //     ● Quantity: ' . $order_details->quantity . '<br>
+        //     ● Shipping Address: ' . $shippingAddress->address . '<br><br>
 
-            <strong>Delivery Instructions:</strong><br>
-            ● Packaging: Ensure that your products are securely packaged to prevent any damage during transit.<br>
-            ● Shipping Label: Attach the provided shipping label to the package. You can download it from your seller dashboard.<br>
-            ● Shipping Carrier: Use the designated shipping carrier for this delivery. The carrier details can be found in your seller dashboard.<br>
-            ● Dispatch: Schedule a pickup or drop off the package at the nearest shipping carrier location within the next ' . 2-3 . ' days.<br><br>
+        //     <strong>Delivery Instructions:</strong><br>
+        //     ● Packaging: Ensure that your products are securely packaged to prevent any damage during transit.<br>
+        //     ● Shipping Label: Attach the provided shipping label to the package. You can download it from your seller dashboard.<br>
+        //     ● Shipping Carrier: Use the designated shipping carrier for this delivery. The carrier details can be found in your seller dashboard.<br>
+        //     ● Dispatch: Schedule a pickup or drop off the package at the nearest shipping carrier location within the next ' . 2-3 . ' days.<br><br>
 
-            <strong>Tracking Information:</strong><br>
-            Once the package has been dispatched, please update the tracking information in your seller dashboard. This will allow customers to track their orders and ensure a smooth delivery process.<br><br>
+        //     <strong>Tracking Information:</strong><br>
+        //     Once the package has been dispatched, please update the tracking information in your seller dashboard. This will allow customers to track their orders and ensure a smooth delivery process.<br><br>
 
-            <strong>Customer Support:</strong><br>
-            If you encounter any issues with the delivery process or have any questions, please contact our support team at [Support Email]. We are here to assist you and ensure a successful delivery.<br><br>
+        //     <strong>Customer Support:</strong><br>
+        //     If you encounter any issues with the delivery process or have any questions, please contact our support team at [Support Email]. We are here to assist you and ensure a successful delivery.<br><br>
 
-            <strong>Additional Notes:</strong><br>
-            Timely and accurate delivery is crucial for maintaining a positive seller rating and customer satisfaction.<br>
-            If there are any delays or issues with fulfilling this order, please inform us immediately.<br><br>
+        //     <strong>Additional Notes:</strong><br>
+        //     Timely and accurate delivery is crucial for maintaining a positive seller rating and customer satisfaction.<br>
+        //     If there are any delays or issues with fulfilling this order, please inform us immediately.<br><br>
 
-            Thank you for your attention to this matter and for your continued partnership with Shopeedo. We appreciate your commitment to providing excellent service to our customers.<br><br>
+        //     Thank you for your attention to this matter and for your continued partnership with Shopeedo. We appreciate your commitment to providing excellent service to our customers.<br><br>
 
-            Best regards,<br>
-            The Shopeedo Team
-        ';
+        //     Best regards,<br>
+        //     The Shopeedo Team
+        // ';
 
 
-        Mail::to($seller->email)->queue(new SecondEmailVerifyMailManager($array));
+        // Mail::to($seller->email)->queue(new SecondEmailVerifyMailManager($array));
 
-        if ($seller->device_token != null && get_setting('google_firebase') == 1) {
-            $firebaseRequest = new \stdClass();
-            $firebaseRequest->device_token = $seller->device_token;
-            $firebaseRequest->title = "New Order Received!";
-            $firebaseRequest->text = "You have received a new order {$order->code}. Please process it.";
-            $firebaseRequest->type = "order";
-            $firebaseRequest->id = $order->id;
-            $firebaseRequest->user_id = $seller->id;
+        // if ($seller->device_token != null && get_setting('google_firebase') == 1) {
+        //     $firebaseRequest = new \stdClass();
+        //     $firebaseRequest->device_token = $seller->device_token;
+        //     $firebaseRequest->title = "New Order Received!";
+        //     $firebaseRequest->text = "You have received a new order {$order->code}. Please process it.";
+        //     $firebaseRequest->type = "order";
+        //     $firebaseRequest->id = $order->id;
+        //     $firebaseRequest->user_id = $seller->id;
 
-            self::sendFirebaseNotification($firebaseRequest);
-        }
-        }
+        //     self::sendFirebaseNotification($firebaseRequest);
+        // }
+        // }
 
 
         if (addon_is_activated('otp_system') && SmsTemplate::where('identifier', 'order_placement')->first()->status == 1) {
