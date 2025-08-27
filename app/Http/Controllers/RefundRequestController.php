@@ -250,12 +250,14 @@ class RefundRequestController extends Controller
         if ($refund->seller_approval == 1) {
             $seller = Shop::where('user_id', $refund->seller_id)->first();
             if ($seller != null) {
-                $seller->admin_to_pay -= $refund->refund_amount;
+                $seller->admin_to_pay -= $request->refund_amount;
             }
             $seller->save();
         }
+        $refund->refund_amount = $request->refund_amount;
+        $refund->save();
 
-        $refund_amount = $refund->refund_amount;
+        $refund_amount = $request->refund_amount;
 
         // Club Point conversion check
         if (addon_is_activated('club_point')) {

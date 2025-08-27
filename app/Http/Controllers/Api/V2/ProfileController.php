@@ -190,7 +190,7 @@ class ProfileController extends Controller
             $dir = public_path('uploads/all');
             $full_path = "$dir/$request->filename";
 
-            $file_put = file_put_contents($full_path, $realImage); // int or false
+            $file_put = file_put_contents($full_path, $realImage); 
 
             if ($file_put == false) {
                 return response()->json([
