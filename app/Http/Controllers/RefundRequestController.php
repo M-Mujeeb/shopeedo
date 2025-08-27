@@ -37,6 +37,10 @@ class RefundRequestController extends Controller
     //Store Customer Refund Request
     public function request_store(Request $request, $id)
     {
+         $validated = $request->validate([
+        'reason'      => ['required','string','min:3'],
+        'attachments' => ['nullable','string'],
+    ]);
         $order_detail = OrderDetail::where('id', $id)->first();
         $product = Product::where('id', $order_detail->product_id)->first();
         $order = Order::where('id', $order_detail->order_id)->first();
@@ -48,7 +52,8 @@ class RefundRequestController extends Controller
         $refund->order_detail_id = $order_detail->id;
         $refund->seller_id = $order_detail->seller_id;
         $refund->seller_approval = 1;
-        $refund->reason = $request->reason;
+        $refund->reason =  $validated['reason'];
+        $refund->attachments = $validated['attachments'] ?? '';
         $refund->admin_approval = 0;
         $refund->admin_seen = 0;
         $refund->refund_amount = $order_detail->price + $order_detail->tax;
