@@ -7,6 +7,7 @@ use App\Http\Resources\V2\ProductCollection;
 use App\Http\Resources\V2\ProductMiniCollection;
 use App\Models\FlashDeal;
 use App\Models\Product;
+use Carbon\Carbon;
 
 class FlashDealController extends Controller
 {
@@ -28,15 +29,28 @@ class FlashDealController extends Controller
         return new FlashDealCollection($flash_deals);
     }
 
-    public function products($id)
+
+    public function products()
     {
-        $flash_deal = FlashDeal::where("slug", $id)->first();
+        $today = Carbon::today()->timestamp;
+
+        $deals = FlashDeal::with('flash_deal_products.product')
+            ->where('status', 1)
+            ->where('start_date', '<=', $today)
+            ->where('end_date', '>=', $today)
+            ->get();
+
         $products = collect();
-        foreach ($flash_deal->flash_deal_products as $key => $flash_deal_product) {
-            if (Product::find($flash_deal_product->product_id) != null) {
-                $products->push(Product::find($flash_deal_product->product_id));
+        foreach ($deals as $deal) {
+            foreach ($deal->flash_deal_products as $fdp) {
+                if ($fdp->product) {
+                    $products->push($fdp->product);
+                }
             }
         }
+
+        $products = $products->unique('id')->values();
+
         return new ProductMiniCollection($products);
     }
 }
